@@ -82,3 +82,21 @@ class TestCategory:
         products_str = category.products
         expected_str = "Test Product, 100.0 руб. Остаток: 10 шт.\n"
         assert products_str == expected_str
+
+    def test_add_product_type_check(self):
+        """Тест проверки типа при добавлении продукта"""
+        category = Category("Test Category", "Test Description", [])
+
+        # Должен работать с объектом Product
+        product = Product("Test Product", "Test Description", 100.0, 10)
+        category.add_product(product)
+
+        # Не должен работать с другими типами
+        with pytest.raises(TypeError, match="Можно добавлять только объекты класса Product или его наследников"):
+            category.add_product("not a product")
+
+        with pytest.raises(TypeError, match="Можно добавлять только объекты класса Product или его наследников"):
+            category.add_product(123)
+
+        with pytest.raises(TypeError, match="Можно добавлять только объекты класса Product или его наследников"):
+            category.add_product({"name": "test"})
