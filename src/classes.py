@@ -5,6 +5,16 @@ class Product:
         self.__price = price  # Приватный атрибут цены
         self.quantity = quantity
 
+    def __str__(self):
+        """Строковое представление продукта"""
+        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
+
+    def __add__(self, other):
+        """Сложение продуктов - возвращает сумму произведений цены на количество"""
+        if not isinstance(other, Product):
+            raise TypeError("Можно складывать только объекты класса Product")
+        return self.price * self.quantity + other.price * other.quantity
+
     @property
     def price(self):
         """Геттер для цены"""
@@ -40,12 +50,17 @@ class Category:
         Category.category_count += 1
         Category.product_count += len(products)
 
+    def __str__(self):
+        """Строковое представление категории"""
+        total_quantity = sum(product.quantity for product in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
+
     @property
     def products(self):
         """Геттер для списка товаров в формате строки"""
         products_str = ""
         for product in self.__products:
-            products_str += f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт.\n"
+            products_str += f"{product}\n"  # Используем __str__ продукта
         return products_str
 
     def add_product(self, product):
@@ -54,3 +69,21 @@ class Category:
             raise TypeError("Можно добавлять только объекты класса Product или его наследников")
         self.__products.append(product)
         Category.product_count += 1
+
+
+# Дополнительное задание - класс для итерации по товарам категории
+class CategoryIterator:
+    def __init__(self, category):
+        self.category = category
+        self.products = category._Category__products  # Доступ к приватному атрибуту
+        self.index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index < len(self.products):
+            product = self.products[self.index]
+            self.index += 1
+            return product
+        raise StopIteration
