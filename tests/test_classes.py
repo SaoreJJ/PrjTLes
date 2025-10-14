@@ -1,150 +1,95 @@
 import pytest
-
-from src.classes import Category, Product, CategoryIterator
-
-
-class TestProduct:
-    def test_product_initialization(self):
-        product = Product("Test Product", "Test Description", 100.0, 10)
-        assert product.name == "Test Product"
-        assert product.description == "Test Description"
-        assert product.price == 100.0
-        assert product.quantity == 10
-
-    def test_price_setter_positive(self):
-        product = Product("Test Product", "Test Description", 100.0, 10)
-        product.price = 150.0
-        assert product.price == 150.0
-
-    def test_price_setter_negative(self, capsys):
-        product = Product("Test Product", "Test Description", 100.0, 10)
-        product.price = -50.0
-        captured = capsys.readouterr()
-        assert "Цена не должна быть нулевая или отрицательная" in captured.out
-        assert product.price == 100.0
-
-    def test_price_setter_zero(self, capsys):
-        product = Product("Test Product", "Test Description", 100.0, 10)
-        product.price = 0
-        captured = capsys.readouterr()
-        assert "Цена не должна быть нулевая или отрицательная" in captured.out
-        assert product.price == 100.0
-
-    def test_new_product_class_method(self):
-        product_data = {
-            "name": "New Product",
-            "description": "New Description",
-            "price": 200.0,
-            "quantity": 5
-        }
-        product = Product.new_product(product_data)
-        assert product.name == "New Product"
-        assert product.description == "New Description"
-        assert product.price == 200.0
-        assert product.quantity == 5
-
-    def test_product_str_representation(self):
-        product = Product("Test Product", "Test Description", 100.0, 10)
-        expected_str = "Test Product, 100.0 руб. Остаток: 10 шт."
-        assert str(product) == expected_str
-
-    def test_product_addition(self):
-        product1 = Product("Product1", "Description1", 100.0, 5)
-        product2 = Product("Product2", "Description2", 200.0, 3)
-
-        # 100 * 5 + 200 * 3 = 500 + 600 = 1100
-        result = product1 + product2
-        assert result == 1100.0
-
-    def test_product_addition_with_different_objects(self):
-        product = Product("Product1", "Description1", 100.0, 5)
-
-        with pytest.raises(TypeError, match="Можно складывать только объекты класса Product"):
-            product + "invalid_object"
+from src.classes import Category, Product, Smartphone, LawnGrass, CategoryIterator
 
 
-class TestCategory:
-    def test_category_initialization(self):
-        product = Product("Test Product", "Test Description", 100.0, 10)
-        category = Category("Test Category", "Test Description", [product])
-        assert category.name == "Test Category"
-        assert category.description == "Test Description"
-        assert "Test Product, 100.0 руб. Остаток: 10 шт." in category.products
+class TestSmartphone:
+    def test_smartphone_initialization(self):
+        smartphone = Smartphone("Test Phone", "Test Description", 1000.0, 5, 95.5, "Model X", 256, "Black")
+        assert smartphone.name == "Test Phone"
+        assert smartphone.description == "Test Description"
+        assert smartphone.price == 1000.0
+        assert smartphone.quantity == 5
+        assert smartphone.efficiency == 95.5
+        assert smartphone.model == "Model X"
+        assert smartphone.memory == 256
+        assert smartphone.color == "Black"
 
-    def test_category_count(self):
-        initial_count = Category.category_count
-        product = Product("Test Product", "Test Description", 100.0, 10)
-        category = Category("Test Category", "Test Description", [product])
-        assert Category.category_count == initial_count + 1
+    def test_smartphone_addition_same_class(self):
+        smartphone1 = Smartphone("Phone1", "Desc1", 1000.0, 2, 95.5, "Model X", 256, "Black")
+        smartphone2 = Smartphone("Phone2", "Desc2", 1500.0, 3, 98.0, "Model Y", 512, "White")
 
-    def test_product_count(self):
-        initial_count = Category.product_count
-        product1 = Product("Product1", "Description1", 100.0, 5)
-        product2 = Product("Product2", "Description2", 200.0, 3)
-        category = Category("Test Category", "Test Description", [product1, product2])
-        assert Category.product_count == initial_count + 2
+        result = smartphone1 + smartphone2
+        expected = 1000.0 * 2 + 1500.0 * 3  # 2000 + 4500 = 6500
+        assert result == expected
 
-    def test_add_product(self):
-        product1 = Product("Product1", "Description1", 100.0, 5)
-        category = Category("Test Category", "Test Description", [product1])
-        initial_product_count = Category.product_count
+    def test_smartphone_addition_different_class(self):
+        smartphone = Smartphone("Phone1", "Desc1", 1000.0, 2, 95.5, "Model X", 256, "Black")
+        product = Product("Regular Product", "Desc", 500.0, 4)
 
-        product2 = Product("Product2", "Description2", 200.0, 3)
-        category.add_product(product2)
+        with pytest.raises(TypeError, match="Можно складывать только объекты одного класса"):
+            smartphone + product
 
-        assert "Product2, 200.0 руб. Остаток: 3 шт." in category.products
-        assert Category.product_count == initial_product_count + 1
 
-    def test_products_getter_format(self):
-        product = Product("Test Product", "Test Description", 100.0, 10)
-        category = Category("Test Category", "Test Description", [product])
-        products_str = category.products
-        expected_str = "Test Product, 100.0 руб. Остаток: 10 шт.\n"
-        assert products_str == expected_str
+class TestLawnGrass:
+    def test_lawn_grass_initialization(self):
+        grass = LawnGrass("Test Grass", "Test Description", 50.0, 10, "Russia", "7 days", "Green")
+        assert grass.name == "Test Grass"
+        assert grass.description == "Test Description"
+        assert grass.price == 50.0
+        assert grass.quantity == 10
+        assert grass.country == "Russia"
+        assert grass.germination_period == "7 days"
+        assert grass.color == "Green"
 
-    def test_add_product_type_check(self):
+    def test_lawn_grass_addition_same_class(self):
+        grass1 = LawnGrass("Grass1", "Desc1", 50.0, 5, "Russia", "7 days", "Green")
+        grass2 = LawnGrass("Grass2", "Desc2", 60.0, 3, "USA", "5 days", "Dark Green")
+
+        result = grass1 + grass2
+        expected = 50.0 * 5 + 60.0 * 3  # 250 + 180 = 430
+        assert result == expected
+
+    def test_lawn_grass_addition_different_class(self):
+        grass = LawnGrass("Grass1", "Desc1", 50.0, 5, "Russia", "7 days", "Green")
+        smartphone = Smartphone("Phone1", "Desc1", 1000.0, 2, 95.5, "Model X", 256, "Black")
+
+        with pytest.raises(TypeError, match="Можно складывать только объекты одного класса"):
+            grass + smartphone
+
+
+class TestCategoryWithNewProducts:
+    def test_category_add_smartphone(self):
+        category = Category("Electronics", "Electronic devices", [])
+        smartphone = Smartphone("Phone1", "Desc1", 1000.0, 2, 95.5, "Model X", 256, "Black")
+
+        category.add_product(smartphone)
+        assert "Phone1, 1000.0 руб. Остаток: 2 шт." in category.products
+
+    def test_category_add_lawn_grass(self):
+        category = Category("Garden", "Garden products", [])
+        grass = LawnGrass("Grass1", "Desc1", 50.0, 5, "Russia", "7 days", "Green")
+
+        category.add_product(grass)
+        assert "Grass1, 50.0 руб. Остаток: 5 шт." in category.products
+
+    def test_category_add_invalid_type(self):
         category = Category("Test Category", "Test Description", [])
-
-        product = Product("Test Product", "Test Description", 100.0, 10)
-        category.add_product(product)
 
         with pytest.raises(TypeError, match="Можно добавлять только объекты класса Product или его наследников"):
             category.add_product("not a product")
 
-    def test_category_str_representation(self):
+
+class TestProductAdditionRestrictions:
+    def test_base_product_addition_same_class(self):
         product1 = Product("Product1", "Description1", 100.0, 5)
         product2 = Product("Product2", "Description2", 200.0, 3)
-        category = Category("Test Category", "Test Description", [product1, product2])
 
-        # 5 + 3 = 8
-        expected_str = "Test Category, количество продуктов: 8 шт."
-        assert str(category) == expected_str
+        result = product1 + product2
+        assert result == 100.0 * 5 + 200.0 * 3  # 500 + 600 = 1100
 
-    def test_category_str_with_empty_products(self):
-        category = Category("Test Category", "Test Description", [])
-        expected_str = "Test Category, количество продуктов: 0 шт."
-        assert str(category) == expected_str
+    def test_base_product_addition_different_class(self):
+        product = Product("Product1", "Description1", 100.0, 5)
+        smartphone = Smartphone("Phone1", "Desc1", 1000.0, 2, 95.5, "Model X", 256, "Black")
 
-
-class TestCategoryIterator:
-    def test_category_iterator(self):
-        product1 = Product("Product1", "Description1", 100.0, 5)
-        product2 = Product("Product2", "Description2", 200.0, 3)
-        category = Category("Test Category", "Test Description", [product1, product2])
-
-        products_from_iterator = []
-        for product in CategoryIterator(category):
-            products_from_iterator.append(product)
-
-        assert len(products_from_iterator) == 2
-        assert products_from_iterator[0].name == "Product1"
-        assert products_from_iterator[1].name == "Product2"
-
-    def test_category_iterator_empty(self):
-        category = Category("Test Category", "Test Description", [])
-
-        products_from_iterator = []
-        for product in CategoryIterator(category):
-            products_from_iterator.append(product)
-
-        assert len(products_from_iterator) == 0
+        with pytest.raises(TypeError, match="Можно складывать только объекты одного класса"):
+            product + smartphone

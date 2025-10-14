@@ -11,8 +11,8 @@ class Product:
 
     def __add__(self, other):
         """Сложение продуктов - возвращает сумму произведений цены на количество"""
-        if not isinstance(other, Product):
-            raise TypeError("Можно складывать только объекты класса Product")
+        if type(self) != type(other):
+            raise TypeError("Можно складывать только объекты одного класса")
         return self.price * self.quantity + other.price * other.quantity
 
     @property
@@ -37,6 +37,37 @@ class Product:
             price=product_data["price"],
             quantity=product_data["quantity"]
         )
+
+
+class Smartphone(Product):
+    def __init__(self, name: str, description: str, price: float, quantity: int,
+                 efficiency: float, model: str, memory: int, color: str):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+    def __add__(self, other):
+        """Сложение смартфонов - только с объектами того же класса"""
+        if type(self) != type(other):
+            raise TypeError("Можно складывать только объекты одного класса")
+        return self.price * self.quantity + other.price * other.quantity
+
+
+class LawnGrass(Product):
+    def __init__(self, name: str, description: str, price: float, quantity: int,
+                 country: str, germination_period: str, color: str):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
+
+    def __add__(self, other):
+        """Сложение газонной травы - только с объектами того же класса"""
+        if type(self) != type(other):
+            raise TypeError("Можно складывать только объекты одного класса")
+        return self.price * self.quantity + other.price * other.quantity
 
 
 class Category:
@@ -71,7 +102,6 @@ class Category:
         Category.product_count += 1
 
 
-# Дополнительное задание - класс для итерации по товарам категории
 class CategoryIterator:
     def __init__(self, category):
         self.category = category
