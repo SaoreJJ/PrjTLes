@@ -1,7 +1,73 @@
 import pytest
-from src.classes import Category, Product, Smartphone, LawnGrass, CategoryIterator
+from abc import ABC
+from src.classes import Category, Product, Smartphone, LawnGrass, CategoryIterator, BaseProduct, LoggingMixin
 
 
+class TestBaseProduct:
+    def test_base_product_is_abstract(self):
+        """Проверяем, что BaseProduct является абстрактным классом"""
+        assert issubclass(BaseProduct, ABC)
+
+    def test_base_product_has_abstract_methods(self):
+        """Проверяем, что BaseProduct имеет абстрактные методы"""
+        abstract_methods = BaseProduct.__abstractmethods__
+        expected_methods = {'__init__', '__str__', '__add__', 'price'}
+        assert abstract_methods == expected_methods
+
+
+class TestLoggingMixin:
+    def test_logging_mixin_initialization(self, capsys):
+        """Тестируем работу миксина логирования"""
+
+        class TestClass(LoggingMixin):
+            def __init__(self, name, value):
+                self.name = name
+                self.value = value
+                super().__init__()
+
+        test_obj = TestClass("Test", 123)
+        captured = capsys.readouterr()
+        assert "TestClass('Test', 123)" in captured.out
+
+    def test_product_with_logging(self, capsys):
+        """Тестируем создание Product с логированием"""
+        product = Product("Test Product", "Test Description", 100.0, 10)
+        captured = capsys.readouterr()
+        assert "Product('Test Product', 'Test Description', 100.0, 10)" in captured.out
+
+    def test_smartphone_with_logging(self, capsys):
+        """Тестируем создание Smartphone с логированием"""
+        smartphone = Smartphone("Test Phone", "Test Description", 1000.0, 5,
+                                95.5, "Model X", 256, "Black")
+        captured = capsys.readouterr()
+        assert "Smartphone('Test Phone', 'Test Description', 1000.0, 5, 95.5, 'Model X', 256, 'Black')" in captured.out
+
+    def test_lawn_grass_with_logging(self, capsys):
+        """Тестируем создание LawnGrass с логированием"""
+        grass = LawnGrass("Test Grass", "Test Description", 50.0, 10,
+                          "Russia", "7 days", "Green")
+        captured = capsys.readouterr()
+        assert "LawnGrass('Test Grass', 'Test Description', 50.0, 10, 'Russia', '7 days', 'Green')" in captured.out
+
+
+class TestInheritanceChain:
+    def test_product_inheritance(self):
+        """Проверяем цепочку наследования Product"""
+        assert issubclass(Product, BaseProduct)
+        assert issubclass(Product, LoggingMixin)
+
+    def test_smartphone_inheritance(self):
+        """Проверяем цепочку наследования Smartphone"""
+        assert issubclass(Smartphone, Product)
+        assert issubclass(Smartphone, BaseProduct)
+
+    def test_lawn_grass_inheritance(self):
+        """Проверяем цепочку наследования LawnGrass"""
+        assert issubclass(LawnGrass, Product)
+        assert issubclass(LawnGrass, BaseProduct)
+
+
+# Существующие тесты остаются без изменений...
 class TestSmartphone:
     def test_smartphone_initialization(self):
         smartphone = Smartphone("Test Phone", "Test Description", 1000.0, 5, 95.5, "Model X", 256, "Black")
