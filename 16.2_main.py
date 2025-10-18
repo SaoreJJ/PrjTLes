@@ -1,192 +1,44 @@
-from abc import ABC, abstractmethod
+from src.classes import Product, Category
 
+if __name__ == '__main__':
+    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
+    product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
+    product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
 
-class LoggingMixin:
-    """Миксин для логирования создания объектов"""
+    print(product1.name)
+    print(product1.description)
+    print(product1.price)
+    print(product1.quantity)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        class_name = self.__class__.__name__
-        # Формируем строку с параметрами для вывода
-        params = []
-        if hasattr(self, 'name'):
-            params.append(f"'{self.name}'")
-        if hasattr(self, 'description'):
-            params.append(f"'{self.description}'")
-        if hasattr(self, 'price'):
-            params.append(f"{self.price}")
-        if hasattr(self, 'quantity'):
-            params.append(f"{self.quantity}")
+    print(product2.name)
+    print(product2.description)
+    print(product2.price)
+    print(product2.quantity)
 
-        # Добавляем специфичные параметры для наследников
-        if hasattr(self, 'efficiency'):
-            params.append(f"{self.efficiency}")
-        if hasattr(self, 'model'):
-            params.append(f"'{self.model}'")
-        if hasattr(self, 'memory'):
-            params.append(f"{self.memory}")
-        if hasattr(self, 'color'):
-            params.append(f"'{self.color}'")
-        if hasattr(self, 'country'):
-            params.append(f"'{self.country}'")
-        if hasattr(self, 'germination_period'):
-            params.append(f"'{self.germination_period}'")
+    print(product3.name)
+    print(product3.description)
+    print(product3.price)
+    print(product3.quantity)
 
-        params_str = ", ".join(params)
-        print(f"{class_name}({params_str})")
+    category1 = Category("Смартфоны",
+                         "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
+                         [product1, product2, product3])
 
+    print(category1.name == "Смартфоны")
+    print(category1.description)
+    print(len(category1))  # Используем __len__ вместо len(category1.products)
+    print(category1.category_count)
+    print(category1.product_count)
 
-class BaseProduct(ABC):
-    """Абстрактный базовый класс для всех продуктов"""
+    product4 = Product("55\" QLED 4K", "Фоновая подсветка", 123000.0, 7)
+    category2 = Category("Телевизоры",
+                         "Современный телевизор, который позволяет наслаждаться просмотром, станет вашим другом и помощником",
+                         [product4])
 
-    @abstractmethod
-    def __init__(self, name: str, description: str, price: float, quantity: int):
-        self.name = name
-        self.description = description
-        self.price = price
-        self.quantity = quantity
+    print(category2.name)
+    print(category2.description)
+    print(len(category2))  # Используем __len__ вместо len(category2.products)
+    print(category2.products)
 
-    @abstractmethod
-    def __str__(self):
-        pass
-
-    @abstractmethod
-    def __add__(self, other):
-        pass
-
-    @property
-    @abstractmethod
-    def price(self):
-        pass
-
-    @price.setter
-    @abstractmethod
-    def price(self, value):
-        pass
-
-
-class Product(BaseProduct, LoggingMixin):
-    def __init__(self, name: str, description: str, price: float, quantity: int):
-        self.name = name
-        self.description = description
-        self.__price = price  # Приватный атрибут цены
-        self.quantity = quantity
-        # Вызов __init__ миксина после инициализации атрибутов
-        LoggingMixin.__init__(self)
-
-    def __str__(self):
-        """Строковое представление продукта"""
-        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
-
-    def __add__(self, other):
-        """Сложение продуктов - возвращает сумму произведений цены на количество"""
-        if type(self) != type(other):
-            raise TypeError("Можно складывать только объекты одного класса")
-        return self.price * self.quantity + other.price * other.quantity
-
-    @property
-    def price(self):
-        """Геттер для цены"""
-        return self.__price
-
-    @price.setter
-    def price(self, new_price):
-        """Сеттер для цены с проверкой на положительное значение"""
-        if new_price > 0:
-            self.__price = new_price
-        else:
-            print("Цена не должна быть нулевая или отрицательная")
-
-    @classmethod
-    def new_product(cls, product_data: dict):
-        """Класс-метод для создания нового продукта из словаря"""
-        return cls(
-            name=product_data["name"],
-            description=product_data["description"],
-            price=product_data["price"],
-            quantity=product_data["quantity"]
-        )
-
-
-class Smartphone(Product):
-    def __init__(self, name: str, description: str, price: float, quantity: int,
-                 efficiency: float, model: str, memory: int, color: str):
-        super().__init__(name, description, price, quantity)
-        self.efficiency = efficiency
-        self.model = model
-        self.memory = memory
-        self.color = color
-        # Повторно вызываем миксин для логирования с полными параметрами
-        LoggingMixin.__init__(self)
-
-    def __add__(self, other):
-        """Сложение смартфонов - только с объектами того же класса"""
-        if type(self) != type(other):
-            raise TypeError("Можно складывать только объекты одного класса")
-        return self.price * self.quantity + other.price * other.quantity
-
-
-class LawnGrass(Product):
-    def __init__(self, name: str, description: str, price: float, quantity: int,
-                 country: str, germination_period: str, color: str):
-        super().__init__(name, description, price, quantity)
-        self.country = country
-        self.germination_period = germination_period
-        self.color = color
-        # Повторно вызываем миксин для логирования с полными параметрами
-        LoggingMixin.__init__(self)
-
-    def __add__(self, other):
-        """Сложение газонной травы - только с объектами того же класса"""
-        if type(self) != type(other):
-            raise TypeError("Можно складывать только объекты одного класса")
-        return self.price * self.quantity + other.price * other.quantity
-
-
-class Category:
-    category_count = 0
-    product_count = 0
-
-    def __init__(self, name: str, description: str, products: list):
-        self.name = name
-        self.description = description
-        self.__products = products  # Приватный атрибут списка товаров
-        Category.category_count += 1
-        Category.product_count += len(products)
-
-    def __str__(self):
-        """Строковое представление категории"""
-        total_quantity = sum(product.quantity for product in self.__products)
-        return f"{self.name}, количество продуктов: {total_quantity} шт."
-
-    @property
-    def products(self):
-        """Геттер для списка товаров в формате строки"""
-        products_str = ""
-        for product in self.__products:
-            products_str += f"{product}\n"  # Используем __str__ продукта
-        return products_str
-
-    def add_product(self, product):
-        """Метод для добавления продукта в категорию с проверкой типа"""
-        if not isinstance(product, Product):
-            raise TypeError("Можно добавлять только объекты класса Product или его наследников")
-        self.__products.append(product)
-        Category.product_count += 1
-
-
-class CategoryIterator:
-    def __init__(self, category):
-        self.category = category
-        self.products = category._Category__products  # Доступ к приватному атрибуту
-        self.index = 0
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.index < len(self.products):
-            product = self.products[self.index]
-            self.index += 1
-            return product
-        raise StopIteration
+    print(Category.category_count)
+    print(Category.product_count)

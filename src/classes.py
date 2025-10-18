@@ -9,27 +9,27 @@ class LoggingMixin:
         class_name = self.__class__.__name__
         # Формируем строку с параметрами для вывода
         params = []
-        if hasattr(self, 'name'):
+        if hasattr(self, "name"):
             params.append(f"'{self.name}'")
-        if hasattr(self, 'description'):
+        if hasattr(self, "description"):
             params.append(f"'{self.description}'")
-        if hasattr(self, 'price'):
+        if hasattr(self, "price"):
             params.append(f"{self.price}")
-        if hasattr(self, 'quantity'):
+        if hasattr(self, "quantity"):
             params.append(f"{self.quantity}")
 
         # Добавляем специфичные параметры для наследников
-        if hasattr(self, 'efficiency'):
+        if hasattr(self, "efficiency"):
             params.append(f"{self.efficiency}")
-        if hasattr(self, 'model'):
+        if hasattr(self, "model"):
             params.append(f"'{self.model}'")
-        if hasattr(self, 'memory'):
+        if hasattr(self, "memory"):
             params.append(f"{self.memory}")
-        if hasattr(self, 'color'):
+        if hasattr(self, "color"):
             params.append(f"'{self.color}'")
-        if hasattr(self, 'country'):
+        if hasattr(self, "country"):
             params.append(f"'{self.country}'")
-        if hasattr(self, 'germination_period'):
+        if hasattr(self, "germination_period"):
             params.append(f"'{self.germination_period}'")
 
         params_str = ", ".join(params)
@@ -104,13 +104,22 @@ class Product(BaseProduct, LoggingMixin):
             name=product_data["name"],
             description=product_data["description"],
             price=product_data["price"],
-            quantity=product_data["quantity"]
+            quantity=product_data["quantity"],
         )
 
 
 class Smartphone(Product):
-    def __init__(self, name: str, description: str, price: float, quantity: int,
-                 efficiency: float, model: str, memory: int, color: str):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        quantity: int,
+        efficiency: float,
+        model: str,
+        memory: int,
+        color: str,
+    ):
         super().__init__(name, description, price, quantity)
         self.efficiency = efficiency
         self.model = model
@@ -127,8 +136,16 @@ class Smartphone(Product):
 
 
 class LawnGrass(Product):
-    def __init__(self, name: str, description: str, price: float, quantity: int,
-                 country: str, germination_period: str, color: str):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        quantity: int,
+        country: str,
+        germination_period: str,
+        color: str,
+    ):
         super().__init__(name, description, price, quantity)
         self.country = country
         self.germination_period = germination_period
@@ -167,6 +184,10 @@ class Category:
             products_str += f"{product}\n"  # Используем __str__ продукта
         return products_str
 
+    def get_products_list(self):
+        """Метод для получения списка продуктов (для внутреннего использования)"""
+        return self.__products
+
     def add_product(self, product):
         """Метод для добавления продукта в категорию с проверкой типа"""
         if not isinstance(product, Product):
@@ -174,11 +195,15 @@ class Category:
         self.__products.append(product)
         Category.product_count += 1
 
+    def __len__(self):
+        """Возвращает количество продуктов в категории"""
+        return len(self.__products)
+
 
 class CategoryIterator:
     def __init__(self, category):
         self.category = category
-        self.products = category._Category__products  # Доступ к приватному атрибуту
+        self.products = category.get_products_list()  # Используем публичный метод
         self.index = 0
 
     def __iter__(self):

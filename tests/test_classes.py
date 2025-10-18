@@ -1,6 +1,6 @@
 import pytest
 from abc import ABC
-from src.classes import Category, Product, Smartphone, LawnGrass, CategoryIterator, BaseProduct, LoggingMixin
+from src.classes import Category, Product, Smartphone, LawnGrass, BaseProduct, LoggingMixin
 
 
 class TestBaseProduct:
@@ -25,27 +25,27 @@ class TestLoggingMixin:
                 self.value = value
                 super().__init__()
 
-        test_obj = TestClass("Test", 123)
+        TestClass("Test", 123)  # Создаем объект, но не сохраняем в переменную
         captured = capsys.readouterr()
         assert "TestClass('Test', 123)" in captured.out
 
     def test_product_with_logging(self, capsys):
         """Тестируем создание Product с логированием"""
-        product = Product("Test Product", "Test Description", 100.0, 10)
+        Product("Test Product", "Test Description", 100.0, 10)  # Создаем объект, но не сохраняем
         captured = capsys.readouterr()
         assert "Product('Test Product', 'Test Description', 100.0, 10)" in captured.out
 
     def test_smartphone_with_logging(self, capsys):
         """Тестируем создание Smartphone с логированием"""
-        smartphone = Smartphone("Test Phone", "Test Description", 1000.0, 5,
-                                95.5, "Model X", 256, "Black")
+        Smartphone("Test Phone", "Test Description", 1000.0, 5,
+                   95.5, "Model X", 256, "Black")  # Создаем объект, но не сохраняем
         captured = capsys.readouterr()
         assert "Smartphone('Test Phone', 'Test Description', 1000.0, 5, 95.5, 'Model X', 256, 'Black')" in captured.out
 
     def test_lawn_grass_with_logging(self, capsys):
         """Тестируем создание LawnGrass с логированием"""
-        grass = LawnGrass("Test Grass", "Test Description", 50.0, 10,
-                          "Russia", "7 days", "Green")
+        LawnGrass("Test Grass", "Test Description", 50.0, 10,
+                  "Russia", "7 days", "Green")  # Создаем объект, но не сохраняем
         captured = capsys.readouterr()
         assert "LawnGrass('Test Grass', 'Test Description', 50.0, 10, 'Russia', '7 days', 'Green')" in captured.out
 
