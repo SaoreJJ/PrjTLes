@@ -11,7 +11,7 @@ class TestBaseProduct:
     def test_base_product_has_abstract_methods(self):
         """Проверяем, что BaseProduct имеет абстрактные методы"""
         abstract_methods = BaseProduct.__abstractmethods__
-        expected_methods = {'__init__', '__str__', '__add__', 'price'}
+        expected_methods = {"__init__", "__str__", "__add__", "price"}
         assert abstract_methods == expected_methods
 
 
@@ -37,15 +37,17 @@ class TestLoggingMixin:
 
     def test_smartphone_with_logging(self, capsys):
         """Тестируем создание Smartphone с логированием"""
-        Smartphone("Test Phone", "Test Description", 1000.0, 5,
-                   95.5, "Model X", 256, "Black")  # Создаем объект, но не сохраняем
+        Smartphone(
+            "Test Phone", "Test Description", 1000.0, 5, 95.5, "Model X", 256, "Black"
+        )  # Создаем объект, но не сохраняем
         captured = capsys.readouterr()
         assert "Smartphone('Test Phone', 'Test Description', 1000.0, 5, 95.5, 'Model X', 256, 'Black')" in captured.out
 
     def test_lawn_grass_with_logging(self, capsys):
         """Тестируем создание LawnGrass с логированием"""
-        LawnGrass("Test Grass", "Test Description", 50.0, 10,
-                  "Russia", "7 days", "Green")  # Создаем объект, но не сохраняем
+        LawnGrass(
+            "Test Grass", "Test Description", 50.0, 10, "Russia", "7 days", "Green"
+        )  # Создаем объект, но не сохраняем
         captured = capsys.readouterr()
         assert "LawnGrass('Test Grass', 'Test Description', 50.0, 10, 'Russia', '7 days', 'Green')" in captured.out
 
@@ -159,3 +161,57 @@ class TestProductAdditionRestrictions:
 
         with pytest.raises(TypeError, match="Можно складывать только объекты одного класса"):
             product + smartphone
+
+
+class TestProductZeroQuantity:
+    def test_product_zero_quantity_raises_error(self):
+        """Проверяем, что создание продукта с нулевым количеством вызывает ValueError"""
+        with pytest.raises(ValueError, match="Товар с нулевым количеством не может быть добавлен"):
+            Product("Invalid Product", "Description", 100.0, 0)
+
+    def test_product_positive_quantity_works(self):
+        """Проверяем, что создание продукта с положительным количеством работает нормально"""
+        product = Product("Valid Product", "Description", 100.0, 5)
+        assert product.quantity == 5
+
+
+class TestCategoryMiddlePrice:
+    def test_category_middle_price_with_products(self):
+        """Проверяем расчет средней цены для категории с товарами"""
+        product1 = Product("Product1", "Desc1", 100.0, 2)
+        product2 = Product("Product2", "Desc2", 200.0, 3)
+        category = Category("Test Category", "Test Description", [product1, product2])
+
+        expected_average = (100.0 + 200.0) / 2
+        assert category.middle_price() == expected_average
+
+    def test_category_middle_price_empty(self):
+        """Проверяем расчет средней цены для пустой категории"""
+        category = Category("Empty Category", "No products", [])
+        assert category.middle_price() == 0
+
+    def test_category_middle_price_single_product(self):
+        """Проверяем расчет средней цены для категории с одним товаром"""
+        product = Product("Single Product", "Desc", 150.0, 1)
+        category = Category("Single Category", "One product", [product])
+        assert category.middle_price() == 150.0
+
+
+class TestZeroQuantityError:
+    def test_custom_exception_raised(self, capsys):
+        """Проверяем работу пользовательского исключения"""
+        try:
+            Product("Test Product", "Description", 100.0, 0)
+        except ZeroQuantityError:
+            pass
+
+        captured = capsys.readouterr()
+        assert "Товар с нулевым количеством не может быть добавлен" in captured.out
+        assert "Обработка добавления товара завершена" in captured.out
+
+    def test_successful_addition_message(self, capsys):
+        """Проверяем сообщение об успешном добавлении"""
+        Product("Test Product", "Description", 100.0, 5)
+        captured = capsys.readouterr()
+        assert "Товар успешно добавлен" in captured.out
+        assert "Обработка добавления товара завершена" in captured.out

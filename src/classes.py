@@ -41,10 +41,7 @@ class BaseProduct(ABC):
 
     @abstractmethod
     def __init__(self, name: str, description: str, price: float, quantity: int):
-        self.name = name
-        self.description = description
-        self.price = price
-        self.quantity = quantity
+        pass
 
     @abstractmethod
     def __str__(self):
@@ -65,14 +62,31 @@ class BaseProduct(ABC):
         pass
 
 
+class ZeroQuantityError(Exception):
+    """Исключение для случаев добавления товара с нулевым количеством"""
+
+    pass
+
+
 class Product(BaseProduct, LoggingMixin):
     def __init__(self, name: str, description: str, price: float, quantity: int):
-        self.name = name
-        self.description = description
-        self.__price = price  # Приватный атрибут цены
-        self.quantity = quantity
-        # Вызов __init__ миксина после инициализации атрибутов
-        LoggingMixin.__init__(self)
+        try:
+            if quantity == 0:
+                raise ZeroQuantityError("Товар с нулевым количеством не может быть добавлен")
+
+            self.name = name
+            self.description = description
+            self.__price = price
+            self.quantity = quantity
+            LoggingMixin.__init__(self)
+
+        except ZeroQuantityError as e:
+            print(f"Ошибка: {e}")
+            raise
+        else:
+            print("Товар успешно добавлен")
+        finally:
+            print("Обработка добавления товара завершена")
 
     def __str__(self):
         """Строковое представление продукта"""
@@ -198,6 +212,14 @@ class Category:
     def __len__(self):
         """Возвращает количество продуктов в категории"""
         return len(self.__products)
+
+    def middle_price(self):
+        """Метод для подсчета среднего ценника всех товаров в категории"""
+        try:
+            total_price = sum(product.price for product in self.__products)
+            return total_price / len(self.__products)
+        except ZeroDivisionError:
+            return 0
 
 
 class CategoryIterator:
