@@ -72,7 +72,7 @@ class Product(BaseProduct, LoggingMixin):
     def __init__(self, name: str, description: str, price: float, quantity: int):
         try:
             if quantity == 0:
-                raise ZeroQuantityError("Товар с нулевым количеством не может быть добавлен")
+                raise ValueError("Товар с нулевым количеством не может быть добавлен")  # Уже правильно!
 
             self.name = name
             self.description = description
@@ -80,7 +80,7 @@ class Product(BaseProduct, LoggingMixin):
             self.quantity = quantity
             LoggingMixin.__init__(self)
 
-        except ZeroQuantityError as e:
+        except ValueError as e:
             print(f"Ошибка: {e}")
             raise
         else:

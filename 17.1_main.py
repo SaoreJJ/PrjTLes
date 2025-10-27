@@ -1,15 +1,15 @@
-from src.classes import Product, Category, ZeroQuantityError
+from src.classes import Product, Category
 
 if __name__ == '__main__':
     # Тестирование исключения при нулевом количестве
     try:
         product_invalid = Product("Бракованный товар", "Неверное количество", 1000.0, 0)
-    except ZeroQuantityError as e:
-        print(f"Возникла ошибка ZeroQuantityError прерывающая работу программы при попытке добавить продукт с нулевым количеством: {e}")
+    except ValueError as e:
+        print(f"Возникла ошибка ValueError прерывающая работу программы при попытке добавить продукт с нулевым количеством: {e}")
     else:
-        print("Не возникла ошибка ZeroQuantityError при попытке добавить продукт с нулевым количеством")
+        print("Не возникла ошибка ValueError при попытке добавить продукт с нулевым количеством")
 
-    # Создание обычных продуктов (этот код выполнится, так как исключение было обработано)
+    # Создание обычных продуктов
     product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
     product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
     product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
